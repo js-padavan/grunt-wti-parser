@@ -1,0 +1,48 @@
+{
+  "name": "grunt-wti-parser",
+  "description": "Grunt task for simplification adding of translations",
+  "version": "0.1.0",
+  "homepage": "https://github.com/sloot14/grunt-wti-parser",
+  "author": {
+    "name": "sloot",
+    "email": "sloot14@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sloot14/grunt-wti-parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sloot14/grunt-wti-parser/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/sloot14/grunt-wti-parser/blob/master/LICENSE-MIT"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-clean": "^0.5.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt": "~0.4.5"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.5"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "dependencies": {
+    "JSON": "^1.0.0",
+    "lodash": "^2.4.1",
+    "najax": "^0.1.5",
+    "q": "^1.0.1",
+    "sync": "^0.2.3"
+  }
+}
