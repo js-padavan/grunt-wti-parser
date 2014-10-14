@@ -28,7 +28,6 @@ module.exports = function(grunt) {
       tests: ['tmp']
     },
 
-    // Configuration to be run (and then tested).
     wtiParser: {
       views: {
         options: {
@@ -47,9 +46,7 @@ module.exports = function(grunt) {
         ]
       }
     },
-    // Configuration to be run (and then tested).
     wtiAddSegment: {
-
       add: {
         options: {
           apiKey: 'your_api_key'

@@ -120,9 +120,10 @@ module.exports = function (grunt) {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
         prefix: '{{ $root.i18n.',
-        postfix: ' }}'
+        postfix: ' }}',
+        apiKey: '',
+        re: /\[\[(.+?)\]\]/gi // find [[placeholders]] in text,
       }),
-      re = /\[\[(.+?)\]\]/gi, // find [[placeholders]] in text,
       prev = this.async(),
       file;
 
@@ -140,7 +141,7 @@ module.exports = function (grunt) {
           };
         }
 
-        var res = re.exec(content),
+        var res = options.re.exec(content),
           placeholders = [],
           prev = function () {
             // Print a success message.
@@ -152,7 +153,7 @@ module.exports = function (grunt) {
         while (res) {
           prev = placeholderFactory(res[0], res[1], prev);
           placeholders.push(prev);
-          res = re.exec(content);
+          res = options.re.exec(content);
         }
 
         return prev;
@@ -192,7 +193,7 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('wtiAddSegment', 'Grunt task for simplification adding of translations', function () {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-        apiKey: 'webtranslateit_api_key',
+        apiKey: '',
         translationLocale: 'ru'
       });
 
