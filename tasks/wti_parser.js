@@ -52,9 +52,8 @@ module.exports = function (grunt) {
     }
 
     function sendRequest(name, translate) {
-      console.log('name, translate', name, translate);
       var data = {
-        'key': name,
+        'key': name.trim(),
         'plural': false,
         'type': 'String',
         'dev_comment': null,
@@ -65,7 +64,7 @@ module.exports = function (grunt) {
         },
         'translations': [
           {
-            'text': translate,
+            'text': translate.trim(),
             'locale': file.locale_code
           }
         ]
