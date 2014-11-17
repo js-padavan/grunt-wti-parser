@@ -131,7 +131,7 @@ module.exports = function (grunt) {
         function placeholderFactory(value, key, prev) {
           return function () {
             rl.question('Enter key for "' + value + '": ', function (input) {
-              content = content.replace(value, options.prefix + file.prefix + '.' + input + options.postfix);
+              content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
 
               enterSegments(file, options, input, key.trim()).then(function (){
                 prev && prev();
