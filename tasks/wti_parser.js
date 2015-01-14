@@ -128,34 +128,34 @@ module.exports = function (grunt) {
 
 
     function replaceHolders(content, dest, callback) {
-        function placeholderFactory(value, key, prev) {
-          return function () {
-            rl.question('Enter key for "' + value + '": ', function (input) {
-              content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
+      function placeholderFactory(value, key, prev) {
+        return function () {
+          rl.question('Enter key for "' + value + '": ', function (input) {
+            content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
 
-              enterSegments(file, options, input, key.trim()).then(function (){
-                prev && prev();
-              });
+            enterSegments(file, options, input, key.trim()).then(function (){
+              prev && prev();
             });
-          };
-        }
+          });
+        };
+      }
 
-        var res = options.re.exec(content),
-          placeholders = [],
-          prev = function () {
-            // Print a success message.
-            grunt.file.write(dest, content);
-            grunt.log.writeln('File "' + dest + '" created.');
-            callback();
-          };
+      var res = options.re.exec(content),
+        placeholders = [],
+        prev = function () {
+          // Print a success message.
+          grunt.file.write(dest, content);
+          grunt.log.writeln('File "' + dest + '" created.');
+          callback();
+        };
 
-        while (res) {
-          prev = placeholderFactory(res[0], res[1], prev);
-          placeholders.push(prev);
-          res = options.re.exec(content);
-        }
+      while (res) {
+        prev = placeholderFactory(res[0], res[1], prev);
+        placeholders.push(prev);
+        res = options.re.exec(content);
+      }
 
-        return prev;
+      return prev;
 
     }
 
@@ -178,11 +178,15 @@ module.exports = function (grunt) {
 
     wtiGetFiles(options, proceedFiles.bind(null, function (_file_){
       file = _file_;
+      var re = /(\w+)\.\w+\.json$/,
+        exec = re.exec(file.name);
       if (file) {
-        rl.question('Enter javascript prefix for file "' + file.name + '": ', function (input) {
-          file.prefix = input;
+        if (exec && exec[1]) {
+          file.prefix = exec[1];
           prev();
-        });
+        } else {
+          grunt.log.writeln('Wrong file name in WTI, file name should be named by follow pattern "name.locale.json". Example "landing.en.json". RegExp: /(\w+)\.\w+\.json$/');
+        }
       } else {
         grunt.log.writeln('In your project no files or you use wrong API key');
       }
@@ -192,9 +196,9 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('wtiAddSegment', 'Grunt task for simplification adding of translations', function () {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-        apiKey: '',
-        translationLocale: 'ru'
-      });
+      apiKey: '',
+      translationLocale: 'ru'
+    });
 
     this.async();
     wtiGetFiles(options, proceedFiles.bind(null, function (file){

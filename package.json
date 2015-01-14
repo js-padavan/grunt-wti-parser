@@ -1,7 +1,7 @@
 {
   "name": "grunt-wti-parser",
   "description": "Grunt task for simplification adding of translations",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/sloot14/grunt-wti-parser",
   "author": {
     "name": "sloot",
