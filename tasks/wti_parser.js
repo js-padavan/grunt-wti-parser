@@ -173,16 +173,18 @@ module.exports = function (grunt) {
 
     function replaceHolders(content, dest, existedLocales,  callback) {
       function placeholderFactory(value, key, prev) {
-        var exists = false;
-        var existsIn = [];
-        _.each(existedLocales, function(localeFile, index) {
-          var valueIndex = localeFile.values.indexOf(key);
-          if (valueIndex != -1) {
-            existsIn.push({path: index + "::" + localeFile.keys[valueIndex], key: localeFile.keys[valueIndex], file: index});
-            exists = true;
-          }
-        })
         return function () {
+          var exists = false;
+          var existsIn = [];
+          _.each(existedLocales, function(localeFile, index) {
+            var valueIndex = localeFile.values.indexOf(key);
+            if (valueIndex != -1) {
+              existsIn.push({path: index + "::" + localeFile.keys[valueIndex], key: localeFile.keys[valueIndex], file: index});
+              exists = true;
+            }
+          })
+
+
           if (exists) {
             grunt.log.writeln('locale "' + key +  '" already exists in ' + existsIn.length + ' files:')
             existsIn.forEach(function (file, i) {
@@ -193,6 +195,8 @@ module.exports = function (grunt) {
               if (index != index) {
                 content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
                 enterSegments(file, options, input, key.trim()).then(function (){
+                  existedLocales[file.name].values.push(key);
+                  existedLocales[file.name].keys.push(input);
                   prev && prev();
                 });
               } else {
@@ -208,6 +212,8 @@ module.exports = function (grunt) {
               content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
 
               enterSegments(file, options, input, key.trim()).then(function (){
+                existedLocales[file.name].values.push(key);
+                existedLocales[file.name].keys.push(input);
                 prev && prev();
               });
             });
