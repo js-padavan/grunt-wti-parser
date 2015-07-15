@@ -119,7 +119,6 @@ module.exports = function (grunt) {
   function getAlreadyExistedTranslations(files, options) {
     var queue = [];
     var files = _.chain(files).filter({"master_project_file_id": null}).pluck('name').value();
-    console.log(files);
     _.each(files, function(file) {
       queue.push(
         najax({
@@ -157,6 +156,7 @@ module.exports = function (grunt) {
       }),
       prev = this.async(),
       baseLocale,
+      newLocalesNumber = 0,
       file;
 
     var locales;
@@ -166,16 +166,38 @@ module.exports = function (grunt) {
       getAlreadyExistedTranslations(segmentFiles, options).then(function(existedLocales) {
         console.log('looking for translation items')
         prepareTranslations(existedLocales, this.files);
-        saveTranslations(segmentFiles);
+        if (newLocalesNumber) {
+          saveTranslations(segmentFiles);
+        } else {
+          prev();
+        }
       }.bind(this))
     }.bind(this))
 
 
     function replaceHolders(content, dest, existedLocales,  callback) {
+      // checking if such key already in use
+      function checkUniqueness(inputKey) {
+        var defered = q.defer();
+        function validate(input) {
+          if (existedLocales[file.name].keys.indexOf(input) !== -1 ) {
+            rl.question('Such key alredy in use. Please enter another key', function(input) {
+              validate(input);
+            })
+          } else {
+            defered.resolve(input);
+          }
+        }
+        validate(inputKey);
+        return defered.promise;
+      }
+
+
       function placeholderFactory(value, key, prev) {
         return function () {
           var exists = false;
           var existsIn = [];
+          // checking if such locale already exists
           _.each(existedLocales, function(localeFile, index) {
             var valueIndex = localeFile.values.indexOf(key);
             if (valueIndex != -1) {
@@ -183,7 +205,6 @@ module.exports = function (grunt) {
               exists = true;
             }
           })
-
 
           if (exists) {
             grunt.log.writeln('locale "' + key +  '" already exists in ' + existsIn.length + ' files:')
@@ -193,12 +214,14 @@ module.exports = function (grunt) {
             rl.question('Choose file or enter new key: ', function (input) {
               var index = parseInt(input);
               if (index != index) {
-                content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
-                enterSegments(file, options, input, key.trim()).then(function (){
-                  existedLocales[file.name].values.push(key);
-                  existedLocales[file.name].keys.push(input);
-                  prev && prev();
-                });
+                checkUniqueness(input).then(function(localeKey) {
+                  content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + localeKey + options.postfix);
+                  enterSegments(file, options, localeKey, key.trim()).then(function (){
+                    existedLocales[file.name].values.push(key);
+                    existedLocales[file.name].keys.push(localeKey);
+                    prev && prev();
+                  });
+                })
               } else {
                 var filePrefix = path.basename(existsIn[index - 1].file, '.' + baseLocale + '.json');
                 content = content.replace(value, options.prefix + filePrefix + '.' + existsIn[index-1].key + options.postfix);
@@ -209,13 +232,14 @@ module.exports = function (grunt) {
 
           } else {
             rl.question('Enter key for "' + value + '": ', function (input) {
-              content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + input + options.postfix);
-
-              enterSegments(file, options, input, key.trim()).then(function (){
-                existedLocales[file.name].values.push(key);
-                existedLocales[file.name].keys.push(input);
-                prev && prev();
-              });
+              checkUniqueness(input).then(function(localeKey) {
+                content = content.replace(value, options.prefix + (file.prefix ?  file.prefix + '.' : '') + localeKey + options.postfix);
+                enterSegments(file, options, localeKey, key.trim()).then(function (){
+                  existedLocales[file.name].values.push(key);
+                  existedLocales[file.name].keys.push(localeKey);
+                  prev && prev();
+                });
+              })
             });
           }
         };
@@ -231,6 +255,7 @@ module.exports = function (grunt) {
         };
 
       while (res) {
+        newLocalesNumber++;
         prev = placeholderFactory(res[0], res[1], prev);
         placeholders.push(prev);
         res = options.re.exec(content);
