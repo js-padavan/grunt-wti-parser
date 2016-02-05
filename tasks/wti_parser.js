@@ -28,7 +28,7 @@ module.exports = function (grunt) {
 
   function wtiGetFiles(options, result) {
     najax({
-      contentType: 'json',
+      contentType: 'application/json',
       url: 'https://webtranslateit.com/api/projects/' + options.apiKey + '.json',
       type: 'GET'
     }).success(function (res) {
@@ -72,7 +72,7 @@ module.exports = function (grunt) {
       };
 
       najax({
-        contentType: 'json',
+        contentType: 'application/json',
         url: 'https://webtranslateit.com/api/projects/' + options.apiKey + '/strings',
         type: 'POST',
         data: data
@@ -122,7 +122,7 @@ module.exports = function (grunt) {
     _.each(files, function(file) {
       queue.push(
         najax({
-          contentType: 'json',
+          contentType: 'application/json',
           url: 'https://webtranslateit.com/api/projects/' + options.apiKey + '/files/...?file_path=' + file,
           type: 'GET'
         })
